@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 10vw;
+            text-align: center;
+        }
+        .clock {
+            text-shadow: 0px 0px 10px #00ff00;
+        }
+        .zoom-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        .zoom-buttons button {
+            font-size: 2rem;
+            margin: 5px;
+        }
+    </style>
+    <script>
+        let zoomFactor = localStorage.getItem('zoomFactor') || 1;
+
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+            document.getElementById('time').textContent = timeString;
+        }
+
+        function zoomIn() {
+            zoomFactor = parseFloat(zoomFactor) + 0.1;
+            document.body.style.fontSize = (10 * zoomFactor) + 'vw';
+            localStorage.setItem('zoomFactor', zoomFactor);
+        }
+
+        function zoomOut() {
+            zoomFactor = Math.max(1, parseFloat(zoomFactor) - 0.1);
+            document.body.style.fontSize = (10 * zoomFactor) + 'vw';
+            localStorage.setItem('zoomFactor', zoomFactor);
+        }
+
+        setInterval(updateTime, 1000);
+
+        window.onload = function() {
+            document.body.style.fontSize = (10 * zoomFactor) + 'vw';
+            setTimeout(() => {
+                document.querySelector('.zoom-buttons').style.opacity = 0;
+            }, 3000);
+        }
+
+        document.addEventListener('mousemove', function() {
+            const buttons = document.querySelector('.zoom-buttons');
+            buttons.style.opacity = 1;
+            clearTimeout(window.hideTimeout);
+            window.hideTimeout = setTimeout(() => {
+                buttons.style.opacity = 0;
+            }, 3000);
+        });
+    </script>
+</head>
+<body>
+    <div class="zoom-buttons">
+        <button onclick="zoomIn()">+</button>
+        <button onclick="zoomOut()">-</button>
+    </div>
+    <div class="clock" id="time"></div>
+</body>
+</html>
